@@ -1,0 +1,690 @@
+# Kubernetes Architecture 
+
+
+> **"We know Kubernetes manages containers. But who receives our command? Who decides where the application should run? Who creates the Pod? Who monitors it? And where is the cluster information stored?"**
+
+---
+
+# 1. Start with the Big Picture
+
+
+
+```text
+                    Kubernetes Cluster
+                           |
+              +------------+------------+
+              |                         |
+       Control Plane                Worker Node
+       (Brain)                     (Runs Apps)
+              |                         |
+       +------+-------+          +------+------+
+       |              |          |             |
+   API Server      Scheduler   kubelet      kube-proxy
+       |                         |
+   Controller                  Pod
+   Manager                      |
+       |                    Container
+      etcd
+```
+
+
+> **A Kubernetes cluster has two major parts:**
+
+> 1. **Control Plane**
+> 2. **Worker Nodes**
+
+---
+
+# 2. What is a Kubernetes Cluster?
+
+Explain:
+
+> A Kubernetes cluster is a group of machines working together to run and manage containerized applications.
+
+Simple:
+
+```text
+             Kubernetes Cluster
+                    |
+       +------------+------------+
+       |                         |
+ Control Plane              Worker Nodes
+```
+
+A production cluster can have:
+
+```text
+                    Cluster
+                       |
+          +------------+------------+
+          |                         |
+    Control Plane             Worker Nodes
+       |                     |      |      |
+      CP1                   W1     W2     W3
+```
+
+---
+
+# 3. Control Plane
+
+
+> **Control Plane = Brain of Kubernetes**
+
+It doesn't normally run your application workload itself. Its main job is to **manage the cluster and maintain the desired state**.
+
+Main components:
+
+```text
+              Control Plane
+                    |
+      +-------------+-------------+
+      |             |             |
+ API Server     Scheduler     Controller
+      |                         Manager
+      |
+     etcd
+```
+
+There are four components you should teach today:
+
+1. kube-apiserver
+2. etcd
+3. kube-scheduler
+4. kube-controller-manager
+
+Then Worker Node components:
+
+5. kubelet
+6. kube-proxy
+7. Container Runtime
+
+---
+
+# 4. kube-apiserver
+
+> **API Server is the front door of Kubernetes.**
+
+Whenever you use:
+
+```bash
+kubectl get pods
+```
+
+or:
+
+```bash
+kubectl create deployment nginx --image=nginx
+```
+
+the request goes to the API Server.
+
+Architecture:
+
+```text
+User
+ |
+ | kubectl
+ v
+API Server
+ |
+ +----------------+
+ |                |
+ v                v
+Scheduler      Controllers
+ |
+ v
+etcd
+```
+
+### Simple analogy
+
+```text
+You
+ |
+Receptionist
+ |
+Different departments
+```
+
+The receptionist receives your request and directs it to the appropriate department.
+
+Similarly:
+
+```text
+kubectl
+   |
+API Server
+   |
+Kubernetes Components
+```
+
+### Important point
+
+
+
+> **kubectl does NOT directly talk to the kubelet.**
+
+Normally:
+
+```text
+kubectl → API Server
+```
+
+---
+
+# 5. etcd
+
+Now ask:
+
+> "Where does Kubernetes store cluster information?"
+
+Answer:
+
+### etcd
+
+Explain:
+
+> **etcd is a distributed key-value store used by Kubernetes to store cluster state and configuration data.**
+
+Conceptually:
+
+```text
+               Kubernetes
+                    |
+                   etcd
+                    |
+       +------------+------------+
+       |            |            |
+     Pods        Services     Config
+   metadata                    data
+```
+
+> **"etcd is the key-value data store that holds Kubernetes cluster state."**
+
+### Analogy
+
+```text
+Control Plane = Brain
+etcd          = Memory
+```
+
+---
+
+# 6. kube-scheduler
+
+> "Suppose we create a Pod. Who decides which Worker Node should run it?"
+
+### kube-scheduler
+
+It watches for Pods that need placement and selects an appropriate node based on scheduling constraints and available resources.
+
+Example:
+
+```text
+              Scheduler
+                  |
+       "Where should Pod run?"
+                  |
+        +---------+---------+
+        |         |         |
+      Node 1    Node 2    Node 3
+       CPU       CPU       CPU
+       90%       20%       40%
+                  |
+                  v
+              Pod → Node 2
+```
+
+Important:
+
+> **Scheduler decides where a Pod should run.**
+
+Kubelet/container starts the container its runtime's job.
+
+---
+
+# 7. kube-controller-manager
+
+## Desired State vs Current State
+
+Suppose we say:
+
+```text
+I want 3 Pods
+```
+
+That's the:
+
+### Desired State
+
+```text
+Desired = 3 Pods
+```
+
+But currently:
+
+```text
+Current = 2 Pods
+```
+
+A controller notices the difference:
+
+```text
+Desired State = 3
+Current State = 2
+
+       ↓
+
+Controller
+
+       ↓
+
+Create another Pod
+```
+
+Now:
+
+```text
+Desired = 3
+Current = 3
+```
+
+That's the basic Kubernetes control-loop concept.
+
+### > **Controllers continuously work to make the current state match the desired state.**
+
+---
+
+# 8. Worker Node
+
+Now move to the second major part.
+
+> **Worker Node = Where application workloads run.**
+
+Architecture:
+
+```text
+                 Worker Node
+                     |
+        +------------+------------+
+        |            |            |
+      kubelet    kube-proxy   Container
+                              Runtime
+        |
+       Pod
+        |
+   Container
+```
+
+---
+
+# 9. kubelet
+
+This is another important component.
+
+> **kubelet is the agent running on each Worker Node.**
+
+Its job includes ensuring that Pods assigned to that node are running according to their specifications.
+
+Conceptually:
+
+```text
+API Server
+     |
+     v
+Worker Node
+     |
+  kubelet
+     |
+     v
+  Pod
+     |
+ Container
+```
+
+Example:
+
+```text
+Scheduler:
+"Run this Pod on Worker 1."
+
+          ↓
+
+Worker 1 kubelet receives
+the Pod specification
+
+          ↓
+
+kubelet works with
+container runtime
+
+          ↓
+
+Container starts
+```
+
+---
+
+# 10. Container Runtime
+
+> Kubernetes needs a container runtime to actually run containers.
+
+Examples include:
+
+* containerd
+* CRI-O
+
+Important modern point:
+
+> **Docker Engine itself is not the Kubernetes container runtime in current standard Kubernetes setups.**
+
+Kubernetes uses the **CRI (Container Runtime Interface)** to interact with compatible runtimes.
+
+Architecture:
+
+```text
+Kubernetes
+    |
+  kubelet
+    |
+   CRI
+    |
+containerd / CRI-O
+    |
+Container
+```
+
+
+```text
+Kubernetes ≠ Docker
+```
+
+Kubernetes can manage workloads using a compatible container runtime.
+
+---
+
+# 11. kube-proxy
+
+> **kube-proxy helps implement Kubernetes Service networking on nodes.**
+
+For example:
+
+```text
+              Service
+                 |
+       +---------+---------+
+       |         |         |
+      Pod       Pod       Pod
+```
+
+Traffic destined for a Kubernetes Service needs to reach appropriate Pods.
+
+Depending on the networking implementation, kube-proxy uses mechanisms such as iptables or IPVS to implement Service traffic forwarding.
+
+> **kube-proxy → Service networking/traffic forwarding**
+
+---
+
+# 12. Complete Architecture
+
+Now put everything together.
+
+```text
+                         Kubernetes Cluster
+                                |
+          +---------------------+---------------------+
+          |                                           |
+          |              CONTROL PLANE                |
+          |                                           |
+          |   +-------------+                         |
+          |   | API Server  |                         |
+          |   +------+------+                         |
+          |          |                                 |
+          |    +-----+------+----------+              |
+          |    |            |          |              |
+          |  etcd       Scheduler   Controller        |
+          |                           Manager         |
+          |                                           |
+          +---------------------+---------------------+
+                                |
+                         API / Cluster State
+                                |
+              +-----------------+-----------------+
+              |                                   |
+       +------+-------+                     +-----+------+
+       | Worker Node 1|                     |Worker Node2|
+       |              |                     |            |
+       | kubelet      |                     | kubelet    |
+       | kube-proxy   |                     | kube-proxy |
+       | runtime      |                     | runtime    |
+       |              |                     |            |
+       | Pod          |                     | Pod        |
+       |  └Container  |                     | └Container |
+       +--------------+                     +------------+
+```
+
+---
+
+# 13. Explain the Complete Request Flow
+
+Suppose the developer runs:
+
+```bash
+kubectl create deployment nginx --image=nginx
+```
+
+Explain step by step.
+
+### Step 1 — User
+
+```text
+kubectl
+   |
+   v
+API Server
+```
+
+The request goes to the API Server.
+
+### Step 2 — API Server
+
+API Server validates and processes the request and persists the relevant cluster state.
+
+```text
+API Server
+    |
+    v
+  etcd
+```
+
+### Step 3 — Scheduler
+
+A Pod requiring placement is observed.
+
+```text
+Scheduler
+    |
+    v
+Select Worker Node
+```
+
+Suppose:
+
+```text
+Worker Node 2
+```
+
+### Step 4 — kubelet
+
+The kubelet on Worker Node 2 sees that a Pod has been assigned to its node.
+
+```text
+Worker Node 2
+      |
+   kubelet
+      |
+      v
+Container Runtime
+```
+
+### Step 5 — Container Runtime
+
+The runtime starts the container.
+
+```text
+containerd
+    |
+    v
+ nginx container
+```
+
+### Step 6 — Application Running
+
+```text
+Worker Node 2
+      |
+     Pod
+      |
+ nginx Container
+```
+
+---
+
+# 14. The Full Flow
+
+
+```text
+Developer
+    |
+    | kubectl
+    v
+API Server
+    |
+    +-------> etcd
+    |
+    v
+Scheduler
+    |
+    | Select Node
+    v
+Worker Node
+    |
+  kubelet
+    |
+    v
+Container Runtime
+    |
+    v
+Container
+    |
+    v
+Application
+```
+
+> **This flow is the foundation for understanding Kubernetes.**
+
+---
+
+# 15. A very important correction
+
+
+```text
+kubectl
+   |
+   v
+Worker Node
+   |
+   v
+Container
+```
+
+Correct them:
+
+```text
+kubectl
+   |
+   v
+API Server
+   |
+   v
+Kubernetes Control Plane
+   |
+   v
+Worker Node
+```
+
+The **API Server is the central entry point** for Kubernetes API operations.
+
+---
+
+# 16.🏢 Kubernetes = Company
+
+| Kubernetes         | Company analogy                   |
+| ------------------ | --------------------------------- |
+| Control Plane      | Management                        |
+| API Server         | Reception / communication gateway |
+| etcd               | Company records / memory          |
+| Scheduler          | Resource allocator                |
+| Controller Manager | Supervisors                       |
+| Worker Node        | Work floor                        |
+| kubelet            | Worker supervisor/agent           |
+| Container Runtime  | Machinery that runs the work      |
+| Pod                | Work unit                         |
+| Container          | Application process               |
+
+
+
+---
+
+# 17. **7 interview statements**:
+
+### 1.
+
+**Kubernetes Cluster = Control Plane + Worker Nodes**
+
+### 2.
+
+**API Server = Entry point to Kubernetes API**
+
+### 3.
+
+**etcd = Stores Kubernetes cluster state**
+
+### 4.
+
+**Scheduler = Selects the node where a Pod should run**
+
+### 5.
+
+**Controller Manager = Works toward desired state**
+
+### 6.
+
+**kubelet = Node agent that ensures Pods assigned to the node are running**
+
+### 7.
+
+**Container Runtime = Actually runs containers**
+
+And:
+
+> **kube-proxy → helps implement Kubernetes Service networking on nodes.**
+
+---
+
+# 18. Architecture class :
+
+* API Server authentication internals
+* etcd Raft
+* Scheduler algorithms
+* Controller source code
+* kube-proxy internals
+* CNI internals
+* CSI
+* CRI internals
+* admission controllers
+
+
+---
+> **"Kubernetes architecture is basically a control system. The Control Plane receives requests, stores the desired state, decides where workloads should run, and continuously coordinates Worker Nodes. Worker Nodes run the Pods and containers."**
+
