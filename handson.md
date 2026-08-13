@@ -376,7 +376,7 @@ kubectl get pods
 
 A replacement Pod will be created.
 
-This is a **very good classroom demonstration**.
+
 
 ---
 
@@ -709,8 +709,6 @@ Check:
 kubectl get secrets
 ```
 
-Explain that Secrets are intended for sensitive configuration, though Kubernetes Secret values are not automatically encrypted merely because the object is a Secret; production clusters should also use appropriate encryption/access controls.
-
 ---
 
 # Lab 12 — Namespace
@@ -755,9 +753,9 @@ Students learn that Kubernetes resources can be separated by namespace.
 
 ---
 
-# Recommended Killercoda Teaching Flow
+# Recommended Killercoda 
 
-For your class, I would teach it in this exact order:
+
 
 ```text
 1. Kubernetes CLI
@@ -791,9 +789,9 @@ For your class, I would teach it in this exact order:
 15. Ingress
 ```
 
-## One complete student project
+## One complete project
 
-After completing the individual labs, give students this final challenge:
+
 
 ```text
              Browser
@@ -816,18 +814,7 @@ After completing the individual labs, give students this final challenge:
            ReplicaSet
 ```
 
-### Student task
 
-Ask them to create:
-
-```text
-namespace.yml
-deployment.yml
-service.yml
-configmap.yml
-secret.yml
-ingress.yml
-```
 
 The application should have:
 
@@ -843,4 +830,4 @@ The application should have:
 * Scaling from 3 → 5
 * Finally expose the application using **Ingress**
 
-This single exercise will make the students practice almost everything you've taught rather than just memorizing YAML.
+
