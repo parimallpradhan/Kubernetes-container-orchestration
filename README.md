@@ -1013,8 +1013,6 @@ kubectl explain deployment
 kubectl explain deployment.spec
 ```
 
----
-
 
 ---
 
