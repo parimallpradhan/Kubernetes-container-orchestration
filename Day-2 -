@@ -1,0 +1,972 @@
+## 🎯 Day 2 Kubernetes Objects
+
+By the end of Day 2, students should understand:
+
+* What is a Pod?
+* Pod vs Container
+* Why Kubernetes uses Pods
+* Pod YAML structure
+* `apiVersion`
+* `kind`
+* `metadata`
+* `spec`
+* `containers`
+* `image`
+* `ports`
+* Create a Pod
+* Check Pod status
+* Describe a Pod
+* View logs
+* Execute commands inside a Pod
+* Delete a Pod
+* Troubleshoot a Pod
+
+---
+
+# 1. Concept
+
+> "What did we use Docker to run?"
+
+
+
+```text
+Container
+```
+
+Then ask:
+
+> "What does Kubernetes run?"
+
+Answer:
+
+```text
+Pod
+```
+
+The important relationship is:
+
+```text
+Kubernetes
+     |
+     ↓
+    Pod
+     |
+     ↓
+ Container
+```
+
+### Simple definition
+
+> **A Pod is the smallest deployable unit in Kubernetes and usually contains one application container.**
+
+For beginners, use **one container per Pod** in almost all initial examples.
+
+---
+
+# 2. Pod vs Container
+
+This is commonly confusing for freshers.
+
+### Docker
+
+```text
+Docker
+  |
+  ↓
+Container
+```
+
+### Kubernetes
+
+```text
+Kubernetes
+  |
+  ↓
+Pod
+  |
+  ↓
+Container
+```
+
+A Pod provides a wrapper around one or more containers.
+
+For now:
+
+```text
+Pod
+ |
+ └── Nginx Container
+```
+
+Later you can explain multi-container Pods.
+
+---
+
+# 3. Why Doesn't Kubernetes Directly Manage Containers?
+
+Tell students:
+
+> Kubernetes uses Pods as the abstraction for running workloads.
+
+A Pod provides things such as:
+
+* Shared network namespace
+* Shared IP address
+* Shared storage volumes
+* Container lifecycle management
+
+For now, remember:
+
+```text
+Pod = execution environment for container(s)
+```
+
+---
+
+# 4. First Hands-On — Check the Cluster
+
+Using Killercoda:
+
+```bash
+kubectl get nodes
+```
+
+Expected:
+
+```text
+NAME           STATUS   ROLES
+controlplane   Ready    control-plane
+node01         Ready    <none>
+```
+
+Then:
+
+```bash
+kubectl get pods
+```
+
+Usually:
+
+```text
+No resources found in default namespace.
+```
+
+Explain:
+
+> We currently have a Kubernetes cluster, but we haven't created our application Pod yet.
+
+---
+
+# 5. Create Your First Pod
+
+Create a file:
+
+```bash
+vi pod.yaml
+```
+
+Put this inside:
+
+```yaml
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pod
+
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:latest
+```
+
+Save the file.
+
+---
+
+# 6. Explain Every Line
+
+This is **very important for freshers**.
+
+### `apiVersion`
+
+```yaml
+apiVersion: v1
+```
+
+It tells Kubernetes which API version is being used.
+
+For a basic Pod:
+
+```text
+v1
+```
+
+---
+
+### `kind`
+
+```yaml
+kind: Pod
+```
+
+Tells Kubernetes what object we want to create.
+
+Examples you'll learn later:
+
+```text
+Pod
+Deployment
+Service
+ConfigMap
+Secret
+```
+
+---
+
+### `metadata`
+
+```yaml
+metadata:
+  name: nginx-pod
+```
+
+Metadata identifies the object.
+
+Here:
+
+```text
+Object name = nginx-pod
+```
+
+---
+
+### `spec`
+
+```yaml
+spec:
+```
+
+`spec` describes the **desired configuration** of the object.
+
+This concept becomes extremely important throughout Kubernetes.
+
+---
+
+### `containers`
+
+```yaml
+containers:
+```
+
+Defines the containers that should run inside the Pod.
+
+---
+
+### Container name
+
+```yaml
+- name: nginx-container
+```
+
+Name of the container.
+
+---
+
+### Image
+
+```yaml
+image: nginx:latest
+```
+
+Kubernetes will use the Nginx container image.
+
+The flow is:
+
+```text
+pod.yaml
+   |
+   ↓
+Kubernetes API Server
+   |
+   ↓
+Scheduler
+   |
+   ↓
+Worker Node
+   |
+   ↓
+Container Runtime
+   |
+   ↓
+Nginx Container
+```
+
+---
+
+# 7. Create the Pod
+
+Run:
+
+```bash
+kubectl apply -f pod.yaml
+```
+
+Expected:
+
+```text
+pod/nginx-pod created
+```
+
+Explain:
+
+> `kubectl apply` reads the YAML file and tells Kubernetes to create or update the desired resource.
+
+---
+
+# 8. Check the Pod
+
+```bash
+kubectl get pods
+```
+
+Expected:
+
+```text
+NAME        READY   STATUS    RESTARTS   AGE
+nginx-pod   1/1     Running   0          10s
+```
+
+Explain:
+
+### NAME
+
+```text
+nginx-pod
+```
+
+Pod name.
+
+### READY
+
+```text
+1/1
+```
+
+Means:
+
+```text
+1 container ready
+out of
+1 container
+```
+
+### STATUS
+
+```text
+Running
+```
+
+Pod is running.
+
+### RESTARTS
+
+```text
+0
+```
+
+Container has not restarted.
+
+---
+
+# 9. See More Information
+
+```bash
+kubectl get pods -o wide
+```
+
+Now students can see:
+
+```text
+NAME        READY   STATUS    IP           NODE
+nginx-pod   1/1     Running   10.x.x.x     node01
+```
+
+This is a good opportunity to introduce:
+
+```text
+Pod IP
+Node
+```
+
+---
+
+# 10. Describe the Pod
+
+This is one of the **most important commands for troubleshooting**.
+
+```bash
+kubectl describe pod nginx-pod
+```
+
+Students will see:
+
+```text
+Name:
+Namespace:
+Node:
+Status:
+IP:
+Containers:
+  nginx-container
+    Image:
+    State:
+    Ready:
+Events:
+```
+
+Tell students:
+
+> Whenever a Pod isn't working, `kubectl describe pod` is one of the first commands you should use.
+
+---
+
+# 11. View Pod Logs
+
+Run:
+
+```bash
+kubectl logs nginx-pod
+```
+
+For Nginx, you may see logs such as HTTP requests after accessing it.
+
+Explain:
+
+```text
+Application
+    ↓
+Container
+    ↓
+Logs
+    ↓
+kubectl logs
+```
+
+If there are multiple containers:
+
+```bash
+kubectl logs <pod-name> -c <container-name>
+```
+
+---
+
+# 12. Execute Commands Inside the Pod
+
+This is another important DevOps skill.
+
+Run:
+
+```bash
+kubectl exec -it nginx-pod -- /bin/bash
+```
+
+If Bash isn't available:
+
+```bash
+kubectl exec -it nginx-pod -- /bin/sh
+```
+
+Now you're inside the container.
+
+Try:
+
+```bash
+hostname
+```
+
+Then:
+
+```bash
+ls
+```
+
+Then:
+
+```bash
+cat /etc/os-release
+```
+
+Exit:
+
+```bash
+exit
+```
+
+Explain the difference:
+
+```text
+kubectl exec
+     ↓
+Execute command
+     ↓
+Inside container
+```
+
+This is extremely useful for troubleshooting.
+
+---
+
+# 13. Add a Port to the Pod
+
+Now update the YAML:
+
+```yaml
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: nginx-pod
+
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+```
+
+Apply:
+
+```bash
+kubectl apply -f pod.yaml
+```
+
+Then:
+
+```bash
+kubectl describe pod nginx-pod
+```
+
+You should see:
+
+```text
+Port: 80/TCP
+```
+
+### Important clarification for students
+
+This:
+
+```yaml
+containerPort: 80
+```
+
+**does not expose the Pod to the Internet.**
+
+It documents/declares the container port.
+
+Actual application exposure will be taught using **Service**.
+
+---
+
+# 14. Important Pod Commands
+
+Give students this table:
+
+| Task              | Command                                 |
+| ----------------- | --------------------------------------- |
+| List Pods         | `kubectl get pods`                      |
+| Detailed Pod list | `kubectl get pods -o wide`              |
+| Create/Update     | `kubectl apply -f pod.yaml`             |
+| Describe          | `kubectl describe pod nginx-pod`        |
+| Logs              | `kubectl logs nginx-pod`                |
+| Execute command   | `kubectl exec -it nginx-pod -- /bin/sh` |
+| Delete            | `kubectl delete pod nginx-pod`          |
+| YAML output       | `kubectl get pod nginx-pod -o yaml`     |
+| Watch status      | `kubectl get pods -w`                   |
+
+---
+
+# 15. Delete the Pod
+
+Run:
+
+```bash
+kubectl delete pod nginx-pod
+```
+
+Expected:
+
+```text
+pod "nginx-pod" deleted
+```
+
+Then:
+
+```bash
+kubectl get pods
+```
+
+You should get:
+
+```text
+No resources found in default namespace.
+```
+
+This is a good teaching moment.
+
+Ask:
+
+> "If the Pod is deleted, will Kubernetes recreate it?"
+
+Answer:
+
+**No.**
+
+Why?
+
+Because we created a **standalone Pod**.
+
+There is no Deployment or ReplicaSet managing it.
+
+This naturally creates curiosity for **Day 3 — ReplicaSet and Deployment**.
+
+---
+
+# 16. Pod Lifecycle
+
+Introduce these states:
+
+```text
+Pending
+   ↓
+Running
+   ↓
+Succeeded / Failed
+```
+
+Students should also recognize:
+
+```text
+ContainerCreating
+CrashLoopBackOff
+ImagePullBackOff
+ErrImagePull
+Completed
+```
+
+Don't go deeply into troubleshooting all of these today.
+
+Just tell them:
+
+> These statuses are important when diagnosing Pods.
+
+---
+
+# 17. Common Beginner Error — YAML
+
+Since you're using Killercoda, students will probably make YAML mistakes.
+
+For example:
+
+```yaml
+metadata:
+name: nginx-pod
+```
+
+❌ Incorrect indentation.
+
+Correct:
+
+```yaml
+metadata:
+  name: nginx-pod
+```
+
+Another common mistake:
+
+```yaml
+spec:
+containers:
+```
+
+Correct:
+
+```yaml
+spec:
+  containers:
+```
+
+Tell them:
+
+> **YAML is indentation-sensitive.**
+
+Before applying:
+
+```bash
+kubectl apply -f pod.yaml
+```
+
+they should carefully check indentation.
+
+---
+
+# 18. Day 2 Troubleshooting Exercise
+
+Give students this intentionally broken YAML:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-test
+spec:
+  containers:
+    - name: nginx
+      image: nginx:notexist
+```
+
+Run:
+
+```bash
+kubectl apply -f pod.yaml
+```
+
+Then:
+
+```bash
+kubectl get pods
+```
+
+They may see:
+
+```text
+ImagePullBackOff
+```
+
+Now ask:
+
+> "What should we do?"
+
+First:
+
+```bash
+kubectl describe pod nginx-test
+```
+
+Look at:
+
+```text
+Events:
+```
+
+They should find that Kubernetes cannot pull the requested image.
+
+This teaches an important DevOps troubleshooting habit:
+
+```text
+Problem
+   ↓
+kubectl get pods
+   ↓
+kubectl describe pod
+   ↓
+Check Events
+   ↓
+Identify root cause
+```
+
+---
+
+# 19. Day 2 Practical Assignment
+
+Give students this task:
+
+### Task 1
+
+Create:
+
+```text
+nginx-pod
+```
+
+using:
+
+```text
+nginx:latest
+```
+
+### Task 2
+
+Verify:
+
+```bash
+kubectl get pods
+```
+
+### Task 3
+
+Find:
+
+* Pod IP
+* Node name
+* Container name
+* Image
+
+using:
+
+```bash
+kubectl describe pod nginx-pod
+```
+
+### Task 4
+
+Check logs:
+
+```bash
+kubectl logs nginx-pod
+```
+
+### Task 5
+
+Enter the container:
+
+```bash
+kubectl exec -it nginx-pod -- /bin/sh
+```
+
+### Task 6
+
+Inside the container:
+
+```bash
+hostname
+```
+
+and:
+
+```bash
+ls /usr/share/nginx/html
+```
+
+### Task 7
+
+Exit:
+
+```bash
+exit
+```
+
+### Task 8
+
+Delete the Pod:
+
+```bash
+kubectl delete pod nginx-pod
+```
+
+### Task 9
+
+Verify deletion:
+
+```bash
+kubectl get pods
+```
+
+---
+
+# 20. Day 2 Interview Questions
+
+Students should be able to answer:
+
+**1. What is a Pod?**
+
+Smallest deployable unit in Kubernetes.
+
+**2. Can a Pod contain multiple containers?**
+
+Yes.
+
+**3. Can a Pod have multiple containers of different images?**
+
+Yes.
+
+**4. What is `apiVersion`?**
+
+Specifies the Kubernetes API version used by the object.
+
+**5. What is `kind`?**
+
+Specifies the type of Kubernetes object.
+
+**6. What is `metadata`?**
+
+Contains identifying information such as name and labels.
+
+**7. What is `spec`?**
+
+Defines the desired configuration/state of the object.
+
+**8. How do you see Pod logs?**
+
+```bash
+kubectl logs <pod-name>
+```
+
+**9. How do you enter a container?**
+
+```bash
+kubectl exec -it <pod-name> -- /bin/sh
+```
+
+**10. How do you troubleshoot a failed Pod?**
+
+Start with:
+
+```bash
+kubectl get pods
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+```
+
+---
+
+# 🎯 Day 2 Final Concept
+
+Students should leave with this mental model:
+
+```text
+                 Kubernetes
+                     |
+                     ↓
+                    Pod
+                     |
+              +------+------+
+              |             |
+              ↓             ↓
+          Container     Container
+              |
+              ↓
+         Application
+```
+
+And they should be comfortable with:
+
+```text
+YAML
+ ↓
+kubectl apply
+ ↓
+Pod
+ ↓
+get
+ ↓
+describe
+ ↓
+logs
+ ↓
+exec
+ ↓
+delete
+```
