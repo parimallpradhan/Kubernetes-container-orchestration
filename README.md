@@ -84,136 +84,7 @@ Extensible and cloud-native
 
 ---
 
-## 03. Kubernetes Architecture
-
-
-### Control Plane
-
-* kube-apiserver
-* etcd
-* kube-scheduler
-* kube-controller-manager
-
-### Worker Node
-
-* kubelet
-* kube-proxy
-* Container Runtime
-
-
-
-### Architecture
-
-```text
-                  Kubernetes Cluster
-                         |
-             +-----------+-----------+
-             |                       |
-        Control Plane           Worker Nodes
-             |                       |
-       +-----+------+          +-----+-----+
-       |     |      |          |           |
-    API   Scheduler etcd     kubelet   kube-proxy
-    Server                    |
-       |                       |
- Controller                 Pod
- Manager                      |
-                          Container
-```
-
-### Request Flow
-
-```text
-kubectl
-   ↓
-API Server
-   ↓
-Scheduler / Controllers
-   ↓
-Worker Node
-   ↓
-kubelet
-   ↓
-Container Runtime
-   ↓
-Container
-```
-
-
-
-# Real-World Problem
-
-> "Suppose you have 20 Docker containers running your application. What happens if one container crashes?"
-
-With plain Docker:
-
-```text
-Docker Host
-   |
-   +--- Container 1
-   +--- Container 2
-   +--- Container 3
-   +--- Container 4
-```
-
-If Container 3 crashes:
-
-```text
-Container 3 ❌
-```
-
-Someone needs to:
-
-* Detect the failure
-* Restart it
-* Maintain the required number of containers
-* Distribute traffic
-* Deploy new versions
-* Roll back bad versions
-* Scale applications
-
-Doing this manually becomes difficult.
-
-### This is where Kubernetes comes in.
-
----
-
-# 04. What is Kubernetes?
-
-
-
-> **Kubernetes is an open-source container orchestration platform used to deploy, manage, scale, and maintain containerized applications.**
-
-Break it down:
-
-```text
-Container
-   ↓
-Kubernetes
-   ↓
-Deploy
-Manage
-Scale
-Monitor
-Recover
-```
-
-
-Instead explain:
-
-```text
-Developer
-   ↓
-Container Image
-   ↓
-Kubernetes
-   ↓
-Runs and manages containers
-```
-
----
-
-# 05. Why Do We Need Kubernetes?
+# 03. Why Do We Need Kubernetes?
 
 Suppose an application has:
 
@@ -289,7 +160,7 @@ v1 ✅
 
 ---
 
-# 06. Kubernetes Architecture
+# 04. Kubernetes Architecture
 
 Kubernetes has two major parts:
 
@@ -316,7 +187,7 @@ Where application workloads run.
 
 ---
 
-# 07. Control Plane Components
+# 05. Control Plane Components
 
 
 ```text
@@ -332,7 +203,7 @@ Where application workloads run.
                  etcd
 ```
 
-## 7.1 kube-apiserver
+## 5.1 kube-apiserver
 
 This is the **entry point to Kubernetes**.
 
@@ -356,7 +227,7 @@ The API Server communicates with the Kubernetes cluster.
 
 ---
 
-# 7.2. etcd
+# 5.2. etcd
 
 `etcd` stores Kubernetes cluster information.
 
@@ -388,7 +259,7 @@ etcd
 
 ---
 
-# 7.3. Scheduler
+# 5.3. Scheduler
 
 Suppose you create a Pod:
 
@@ -425,7 +296,7 @@ Simple definition:
 
 ---
 
-# 7.4. Controller Manager
+# 5.4. Controller Manager
 
 Controllers continuously check whether the **actual state** matches the **desired state**.
 
@@ -470,7 +341,7 @@ This is one of the most important concepts in Kubernetes:
 
 ---
 
-# 8. Worker Node Components
+# 6. Worker Node Components
 
 Now move to the Worker Node.
 
@@ -489,7 +360,7 @@ Now move to the Worker Node.
     Containers
 ```
 
-## 8.1 kubelet
+## 6.1 kubelet
 
 `kubelet` is the agent running on every worker node.
 
@@ -509,7 +380,7 @@ Control Plane
 
 ---
 
-# 8.2 Container Runtime
+# 6.2 Container Runtime
 
 Kubernetes needs a container runtime to actually run containers.
 
@@ -535,7 +406,7 @@ Container
 
 ---
 
-# 8.3. kube-proxy
+# 6.3. kube-proxy
 
 `kube-proxy` helps implement networking rules for Services on nodes.
 
@@ -577,7 +448,7 @@ Server            Manager                    |
 
 ---
 
-# 9. Where Does Docker Fit?
+# 7. Where Does Docker Fit?
 
 
 > "Is Kubernetes a replacement for Docker?"
@@ -635,7 +506,7 @@ This connects nicely with what students have already learned about Docker.
 
 ---
 
-# 10 .What is a Kubernetes Cluster?
+# 8 .What is a Kubernetes Cluster?
 
 A cluster is a collection of machines/nodes managed by Kubernetes.
 
@@ -655,7 +526,7 @@ Applications normally run on the Worker Nodes.
 
 ---
 
-# 11. What is a Pod?
+# 9. What is a Pod?
 
 
 
@@ -858,7 +729,7 @@ Give them this one diagram to remember:
 ```
 ---
 
-## 12. Kubernetes Deployment Methods
+## 10. Kubernetes Deployment Methods
 
 Different ways to deploy Kubernetes:
 
@@ -966,7 +837,7 @@ kubectl cluster-info
 
 ---
 
-# 13. Kubernetes YAML
+# 11. Kubernetes YAML
 
 Learn how Kubernetes resources are represented using YAML manifests.
 
@@ -1016,7 +887,7 @@ kubectl explain deployment.spec
 
 ---
 
-# 14. Kubernetes Objects
+# 12. Kubernetes Objects
 
 Learn how Kubernetes resources are represented using YAML manifests.
 
@@ -1068,7 +939,7 @@ kubectl explain deployment.spec
 
 
 
-# 15. Kubernetes Deployment
+# 13. Kubernetes Deployment
 
 A Deployment manages application Pods and maintains the desired number of replicas.
 
@@ -1154,7 +1025,7 @@ kubectl rollout undo deployment/nginx-deployment
 
 ---
 
-# 16. Kubernetes Services
+# 14. Kubernetes Services
 
 Pods are ephemeral and their IP addresses can change.
 
@@ -1184,7 +1055,7 @@ Service
    +-- ExternalName
 ```
 
-### 16.1 ClusterIP
+### 14.1 ClusterIP
 
 Used primarily for internal communication.
 
@@ -1199,7 +1070,7 @@ Backend Service
 Pod   Pod
 ```
 
-### 16.2 NodePort
+### 14.2 NodePort
 
 Provides access through a port on a node.
 
@@ -1213,7 +1084,7 @@ Service
 Pods
 ```
 
-### 16.3 LoadBalancer
+### 14.3 LoadBalancer
 
 Commonly used with cloud environments.
 
@@ -1229,7 +1100,7 @@ Pods
 
 ---
 
-# 17. Kubernetes Ingress
+# 15. Kubernetes Ingress
 
 Ingress provides HTTP/HTTPS routing from outside the cluster to Kubernetes Services.
 
