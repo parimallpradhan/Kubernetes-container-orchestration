@@ -356,7 +356,7 @@ The API Server communicates with the Kubernetes cluster.
 
 ---
 
-# 6. etcd
+# 5.2. etcd
 
 `etcd` stores Kubernetes cluster information.
 
@@ -388,7 +388,7 @@ etcd
 
 ---
 
-# 7. Scheduler
+# 5.3. Scheduler
 
 Suppose you create a Pod:
 
@@ -425,7 +425,7 @@ Simple definition:
 
 ---
 
-# 8. Controller Manager
+# 5.4. Controller Manager
 
 Controllers continuously check whether the **actual state** matches the **desired state**.
 
@@ -470,7 +470,7 @@ This is one of the most important concepts in Kubernetes:
 
 ---
 
-# 9. Worker Node Components
+# 6. Worker Node Components
 
 Now move to the Worker Node.
 
@@ -489,7 +489,7 @@ Now move to the Worker Node.
     Containers
 ```
 
-## kubelet
+## 6.1 kubelet
 
 `kubelet` is the agent running on every worker node.
 
@@ -509,7 +509,7 @@ Control Plane
 
 ---
 
-# 10. Container Runtime
+# 6.2 Container Runtime
 
 Kubernetes needs a container runtime to actually run containers.
 
@@ -535,7 +535,7 @@ Container
 
 ---
 
-# 11. kube-proxy
+# 6.3. kube-proxy
 
 `kube-proxy` helps implement networking rules for Services on nodes.
 
@@ -577,7 +577,7 @@ Server            Manager                    |
 
 ---
 
-# 13. Where Does Docker Fit?
+# 7. Where Does Docker Fit?
 
 
 > "Is Kubernetes a replacement for Docker?"
@@ -655,7 +655,7 @@ Applications normally run on the Worker Nodes.
 
 ---
 
-# What is a Pod?
+# 8.What is a Pod?
 
 
 
@@ -858,7 +858,7 @@ Give them this one diagram to remember:
 ```
 ---
 
-## 04. Kubernetes Deployment Methods
+## Kubernetes Deployment Methods
 
 Different ways to deploy Kubernetes:
 
@@ -898,7 +898,7 @@ Cloud Kubernetes
 
 ---
 
-# 05. Kubernetes Cluster Deployment Using kubeadm
+# Kubernetes Cluster Deployment Using kubeadm
 
 Build a Kubernetes cluster using:
 
@@ -966,7 +966,7 @@ kubectl cluster-info
 
 ---
 
-# 06. Kubernetes YAML
+# Kubernetes YAML
 
 Learn how Kubernetes resources are represented using YAML manifests.
 
@@ -1018,7 +1018,7 @@ kubectl explain deployment.spec
 
 ---
 
-# 07. Kubernetes Objects
+# Kubernetes Objects
 
 Learn how Kubernetes resources are represented using YAML manifests.
 
@@ -1070,7 +1070,7 @@ kubectl explain deployment.spec
 
 
 
-# 07. Kubernetes Deployment
+# Kubernetes Deployment
 
 A Deployment manages application Pods and maintains the desired number of replicas.
 
