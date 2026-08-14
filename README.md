@@ -141,7 +141,7 @@ Container
 
 
 
-# 1. Real-World Problem
+# Real-World Problem
 
 > "Suppose you have 20 Docker containers running your application. What happens if one container crashes?"
 
@@ -178,7 +178,7 @@ Doing this manually becomes difficult.
 
 ---
 
-# 2. What is Kubernetes?
+# 04. What is Kubernetes?
 
 
 
@@ -213,7 +213,7 @@ Runs and manages containers
 
 ---
 
-# 3. Why Do We Need Kubernetes?
+# 05. Why Do We Need Kubernetes?
 
 Suppose an application has:
 
@@ -289,7 +289,7 @@ v1 ✅
 
 ---
 
-# 4. Kubernetes Architecture
+# 06. Kubernetes Architecture
 
 Kubernetes has two major parts:
 
@@ -316,7 +316,7 @@ Where application workloads run.
 
 ---
 
-# 5. Control Plane Components
+# 07. Control Plane Components
 
 
 ```text
@@ -332,7 +332,7 @@ Where application workloads run.
                  etcd
 ```
 
-## 5.1 kube-apiserver
+## 7.1 kube-apiserver
 
 This is the **entry point to Kubernetes**.
 
@@ -356,7 +356,7 @@ The API Server communicates with the Kubernetes cluster.
 
 ---
 
-# 5.2. etcd
+# 7.2. etcd
 
 `etcd` stores Kubernetes cluster information.
 
@@ -388,7 +388,7 @@ etcd
 
 ---
 
-# 5.3. Scheduler
+# 7.3. Scheduler
 
 Suppose you create a Pod:
 
@@ -425,7 +425,7 @@ Simple definition:
 
 ---
 
-# 5.4. Controller Manager
+# 7.4. Controller Manager
 
 Controllers continuously check whether the **actual state** matches the **desired state**.
 
@@ -470,7 +470,7 @@ This is one of the most important concepts in Kubernetes:
 
 ---
 
-# 6. Worker Node Components
+# 8. Worker Node Components
 
 Now move to the Worker Node.
 
@@ -489,7 +489,7 @@ Now move to the Worker Node.
     Containers
 ```
 
-## 6.1 kubelet
+## 8.1 kubelet
 
 `kubelet` is the agent running on every worker node.
 
@@ -509,7 +509,7 @@ Control Plane
 
 ---
 
-# 6.2 Container Runtime
+# 8.2 Container Runtime
 
 Kubernetes needs a container runtime to actually run containers.
 
@@ -535,7 +535,7 @@ Container
 
 ---
 
-# 6.3. kube-proxy
+# 8.3. kube-proxy
 
 `kube-proxy` helps implement networking rules for Services on nodes.
 
@@ -577,7 +577,7 @@ Server            Manager                    |
 
 ---
 
-# 7. Where Does Docker Fit?
+# 9. Where Does Docker Fit?
 
 
 > "Is Kubernetes a replacement for Docker?"
@@ -635,7 +635,7 @@ This connects nicely with what students have already learned about Docker.
 
 ---
 
-#What is a Kubernetes Cluster?
+# 10 .What is a Kubernetes Cluster?
 
 A cluster is a collection of machines/nodes managed by Kubernetes.
 
@@ -655,7 +655,7 @@ Applications normally run on the Worker Nodes.
 
 ---
 
-# 8.What is a Pod?
+# 11. What is a Pod?
 
 
 
@@ -858,7 +858,7 @@ Give them this one diagram to remember:
 ```
 ---
 
-## Kubernetes Deployment Methods
+## 12. Kubernetes Deployment Methods
 
 Different ways to deploy Kubernetes:
 
@@ -966,7 +966,7 @@ kubectl cluster-info
 
 ---
 
-# Kubernetes YAML
+# 13. Kubernetes YAML
 
 Learn how Kubernetes resources are represented using YAML manifests.
 
@@ -1018,7 +1018,7 @@ kubectl explain deployment.spec
 
 ---
 
-# Kubernetes Objects
+# 14. Kubernetes Objects
 
 Learn how Kubernetes resources are represented using YAML manifests.
 
@@ -1070,7 +1070,7 @@ kubectl explain deployment.spec
 
 
 
-# Kubernetes Deployment
+# 15. Kubernetes Deployment
 
 A Deployment manages application Pods and maintains the desired number of replicas.
 
@@ -1156,7 +1156,7 @@ kubectl rollout undo deployment/nginx-deployment
 
 ---
 
-# 08. Kubernetes Services
+# 16. Kubernetes Services
 
 Pods are ephemeral and their IP addresses can change.
 
@@ -1186,7 +1186,7 @@ Service
    +-- ExternalName
 ```
 
-### ClusterIP
+### 16.1 ClusterIP
 
 Used primarily for internal communication.
 
@@ -1201,7 +1201,7 @@ Backend Service
 Pod   Pod
 ```
 
-### NodePort
+### 16.2 NodePort
 
 Provides access through a port on a node.
 
@@ -1215,7 +1215,7 @@ Service
 Pods
 ```
 
-### LoadBalancer
+### 16.3 LoadBalancer
 
 Commonly used with cloud environments.
 
@@ -1231,7 +1231,7 @@ Pods
 
 ---
 
-# 09. Kubernetes Ingress
+# 17. Kubernetes Ingress
 
 Ingress provides HTTP/HTTPS routing from outside the cluster to Kubernetes Services.
 
