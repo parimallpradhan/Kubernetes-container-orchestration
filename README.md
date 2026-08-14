@@ -297,6 +297,61 @@ kubectl explain deployment.spec
 
 ---
 
+
+---
+
+# 07. Kubernetes Objects
+
+Learn how Kubernetes resources are represented using YAML manifests.
+
+### Basic Structure
+
+```yaml
+apiVersion:
+kind:
+metadata:
+spec:
+```
+
+### Important Concepts
+
+* YAML indentation
+* Key-value pairs
+* Lists
+* Comments
+* `apiVersion`
+* `kind`
+* `metadata`
+* `spec`
+* Labels
+* Selectors
+* Desired State
+* Declarative configuration
+
+### Apply a Manifest
+
+```bash
+kubectl apply -f file.yaml
+```
+
+### Validate
+
+```bash
+kubectl apply --dry-run=client -f file.yaml
+```
+
+### Explore Kubernetes API Resources
+
+```bash
+kubectl explain deployment
+kubectl explain deployment.spec
+```
+
+---
+
+
+
+
 # 07. Kubernetes Deployment
 
 A Deployment manages application Pods and maintains the desired number of replicas.
